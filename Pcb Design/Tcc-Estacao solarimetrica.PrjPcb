@@ -125,6 +125,10 @@ DItemRevisionGUID=
 GenerateClassCluster=0
 DocumentUniqueId=SIWFHICT
 
+[GeneratedDocument1]
+DocumentPath=Project Outputs for Tcc-Estacao solarimetrica\Design Rule Check - Pcb Layout.html
+DItemRevisionGUID=
+
 [Configuration1]
 Name=Sources
 ParameterCount=0
