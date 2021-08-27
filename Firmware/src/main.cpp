@@ -2,6 +2,7 @@
 #include <ESP32Servo.h>
 #include <Declarations.h>
 #include <CustomFunctions.h>
+#include <LoraTest.h>
 
 int pos = 0;
 
@@ -10,6 +11,7 @@ void setup() {
   delay(1000);
 
   InitializeComponents();
+  SetupLoraLib();
 }
 
 void loop() {
@@ -25,4 +27,5 @@ void loop() {
     myservo.write(0);
     delay(200);
   }
+  os_runloop_once();
 }
