@@ -2,13 +2,21 @@
 #include <ESP32Servo.h>
 #include <Declarations.h>
 #include <CustomFunctions.h>
+<<<<<<< HEAD
+
+=======
+#include <SPI.h>
+#include <LoRa.h>
 #include <LoraTest.h>
+>>>>>>> 05ffa88d2abb8c3a29ae95c9c73f2202938e6501
 
 int pos = 0;
 
 void setup() {
   Serial.begin(115200);
   delay(1000);
+
+  LoraDump();
 
   InitializeComponents();
   SetupLoraLib();
