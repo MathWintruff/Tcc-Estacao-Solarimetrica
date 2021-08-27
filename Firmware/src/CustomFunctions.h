@@ -1,4 +1,6 @@
 #include <Arduino.h>
+#include <SPI.h>
+#include <LoRa.h>
 
 double GetAnalogVoltage(byte pin){
     double meassureBuffer = 0;
@@ -36,4 +38,19 @@ String BatVoltagePhrase(byte batPin){
   finalPhrase.concat(bat.Voltage);
   finalPhrase.concat("v.");
   return finalPhrase;
+}
+
+void LoraDump(){
+     Serial.println("LoRa Dump Registers");
+     LoRa.setPins(5, 15, 4);
+
+  // override the default CS, reset, and IRQ pins (optional)
+  // LoRa.setPins(7, 6, 1); // set CS, reset, IRQ pin
+
+  if (!LoRa.begin(915E6)) {         // initialize ratio at 915 MHz
+    Serial.println("LoRa init failed. Check your connections.");
+    while (true);                   // if failed, do nothing
+  }
+
+  LoRa.dumpRegisters(Serial);
 }
