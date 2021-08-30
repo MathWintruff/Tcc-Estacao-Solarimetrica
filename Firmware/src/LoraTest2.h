@@ -1,7 +1,6 @@
 #include <lmic.h>
 #include <hal/hal.h>
 #include <SPI.h>
-
 //#define PIN 4
 
 // LoRaWAN NwkSKey, network session key from TTN - Change this with your Unique Key
@@ -51,8 +50,24 @@ const lmic_pinmap lmic_pins = {
     .nss = 5,
     .rxtx = LMIC_UNUSED_PIN,
     .rst = 15,
-    .dio = {4, LMIC_UNUSED_PIN, LMIC_UNUSED_PIN},
+    .dio = {4, 4, 4},
 };
+
+void do_send(osjob_t* j){
+    // Check if there is not a current TX/RX job running
+    if (LMIC.opmode & OP_TXRXPEND) 
+    {
+        Serial.println(F("OP_TXRXPEND, not sending"));
+    }
+    else 
+    {
+        Data();
+        // Prepare upstream data transmission at the next possible time.
+        LMIC_setTxData2(1, mydata, sizeof(mydata)-1, 0);
+        Serial.println(F("Packet queued"));
+    }
+    // Next TX is scheduled after TX_COMPLETE event.
+}
 
 void onEvent (ev_t ev) {
     Serial.print(os_getTime());
@@ -121,24 +136,8 @@ void onEvent (ev_t ev) {
     }
 }
 
-void do_send(osjob_t* j){
-    // Check if there is not a current TX/RX job running
-    if (LMIC.opmode & OP_TXRXPEND) 
-    {
-        Serial.println(F("OP_TXRXPEND, not sending"));
-    }
-    else 
-    {
-        Data();
-        // Prepare upstream data transmission at the next possible time.
-        LMIC_setTxData2(1, mydata, sizeof(mydata)-1, 0);
-        Serial.println(F("Packet queued"));
-    }
-    // Next TX is scheduled after TX_COMPLETE event.
-}
-
 void SetupLoraLib() {
-    analogReference(INTERNAL);
+//    analogReference(INTERNAL);
 //    pinMode(PIN,INPUT); // Configuring pin A1 as input
     Serial.begin(9600);
     Serial.println(F("Starting"));

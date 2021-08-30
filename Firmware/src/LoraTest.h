@@ -65,7 +65,7 @@ const lmic_pinmap lmic_pins = {
     .nss = 5,
     .rxtx = LMIC_UNUSED_PIN,
     .rst = 15,
-    .dio = {4, LMIC_UNUSED_PIN, LMIC_UNUSED_PIN},
+    .dio = {4},
 };
 
 void printHex2(unsigned v) {

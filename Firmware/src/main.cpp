@@ -19,16 +19,12 @@ void setup() {
 }
 
 void loop() {
-  Serial.println(BatVoltagePhrase(batVoltageSensor));
-  Serial.println(GetAnalogVoltage(batVoltageSensor));
-  delay(500);
-
   if(digitalRead(btn[0]) == 0){
-    myservo.write(180);
+    Serial.println(BatVoltagePhrase(batVoltageSensor));
     delay(200);
   }
   if(digitalRead(btn[1]) == 0){
-    myservo.write(0);
+    //myservo.write(0);
     delay(200);
   }
   os_runloop_once();
