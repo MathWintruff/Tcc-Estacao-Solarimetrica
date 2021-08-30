@@ -209,7 +209,6 @@ void onEvent (ev_t ev) {
 }
 
 void SetupLoraLib() {
-    Serial.begin(9600);
     Serial.println(F("Starting"));
 
     #ifdef VCC_ENABLE
