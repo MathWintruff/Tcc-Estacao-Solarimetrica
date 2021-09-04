@@ -40,17 +40,17 @@
 // first. When copying an EUI from ttnctl output, this means to reverse
 // the bytes. For TTN issued EUIs the last bytes should be 0xD5, 0xB3,
 // 0x70.
-static const u1_t PROGMEM APPEUI[8]={0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+static const u1_t PROGMEM APPEUI[8]={0x66, 0xEA, 0x03, 0xD0, 0x7E, 0xD5, 0xB3, 0x70};
 void os_getArtEui (u1_t* buf) { memcpy_P(buf, APPEUI, 8);}
 
 // This should also be in little endian format, see above.
-static const u1_t PROGMEM DEVEUI[8]={0x99, 0x46, 0x04, 0xD0, 0x7E, 0xD5, 0xB3, 0x70};
+static const u1_t PROGMEM DEVEUI[8]={0x3F, 0x4E, 0x04, 0xD0, 0x7E, 0xD5, 0xB3, 0x70};
 void os_getDevEui (u1_t* buf) { memcpy_P(buf, DEVEUI, 8);}
 
 // This key should be in big endian format (or, since it is not really a
 // number but a block of memory, endianness does not really apply). In
 // practice, a key taken from ttnctl can be copied as-is.
-static const u1_t PROGMEM APPKEY[16] = {0xE8, 0x90, 0x9F, 0x85, 0x15, 0x4B, 0x83, 0x6C, 0x4C, 0x02, 0x1E, 0x58, 0x0C, 0xA2, 0x43, 0x33};
+static const u1_t PROGMEM APPKEY[16] = {0xB3, 0x5C, 0x9F, 0xCA, 0x57, 0xA2, 0xA6, 0x57, 0x37, 0x34, 0x0D, 0x24, 0x78, 0x2F, 0x75, 0x33};
 void os_getDevKey (u1_t* buf) {  memcpy_P(buf, APPKEY, 16);}
 
 static uint8_t mydata[] = "Hello, world!";
@@ -58,14 +58,14 @@ static osjob_t sendjob;
 
 // Schedule TX every this many seconds (might become longer due to duty
 // cycle limitations).
-const unsigned TX_INTERVAL = 60;
+const unsigned TX_INTERVAL = 30;
 
 // Pin mapping
 const lmic_pinmap lmic_pins = {
     .nss = 5,
     .rxtx = LMIC_UNUSED_PIN,
     .rst = 15,
-    .dio = {4},
+    .dio = {4,4,LMIC_UNUSED_PIN},
 };
 
 void printHex2(unsigned v) {
@@ -136,7 +136,7 @@ void onEvent (ev_t ev) {
             // Disable link check validation (automatically enabled
             // during join, but because slow data rates change max TX
 	    // size, we don't use it in this example.
-            LMIC_setLinkCheckMode(0);
+            LMIC_setLinkCheckMode(1);
             break;
         /*
         || This event is defined but not used in the code. No
