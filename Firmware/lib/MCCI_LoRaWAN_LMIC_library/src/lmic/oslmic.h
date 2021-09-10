@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2014-2016 IBM Corporation.
+ * Copyright (c) 2018, 2019 MCCI Corporation
  * All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -29,29 +30,22 @@
 #ifndef _oslmic_h_
 #define _oslmic_h_
 
-// Dependencies required for the LoRa MAC in C to run.
+// Dependencies required for the LMIC to run.
 // These settings can be adapted to the underlying system.
-// You should not, however, change the lmic.[hc]
+// You should not, however, change the lmic merely for porting purposes.[hc]
 
 #include "config.h"
-#include <stdint.h>
 
-#ifdef __cplusplus
-extern "C"{
+#ifndef _lmic_env_h_
+# include "lmic_env.h"
 #endif
 
-//================================================================================
-//================================================================================
-// Target platform as C library
-typedef uint8_t            bit_t;
-typedef uint8_t            u1_t;
-typedef int8_t             s1_t;
-typedef uint16_t           u2_t;
-typedef int16_t            s2_t;
-typedef uint32_t           u4_t;
-typedef int32_t            s4_t;
-typedef unsigned int       uint;
-typedef const char* str_t;
+#ifndef _oslmic_types_h_
+# include "oslmic_types.h"
+#endif
+
+LMIC_BEGIN_DECLS
+
 
 #include <string.h>
 #include "hal.h"
@@ -73,7 +67,14 @@ typedef   struct rxsched_t rxsched_t;
 typedef   struct bcninfo_t bcninfo_t;
 typedef        const u1_t* xref2cu1_t;
 typedef              u1_t* xref2u1_t;
-typedef              s4_t  ostime_t;
+
+// int32_t == s4_t is long on some platforms; and someday
+// we will want 64-bit ostime_t. So, we will use a macro for the
+// print formatting of ostime_t.
+#ifndef LMIC_PRId_ostime_t
+# include <inttypes.h>
+# define LMIC_PRId_ostime_t	PRId32
+#endif
 
 #define TYPEDEF_xref2rps_t     typedef         rps_t* xref2rps_t
 #define TYPEDEF_xref2rxsched_t typedef     rxsched_t* xref2rxsched_t
@@ -83,8 +84,7 @@ typedef              s4_t  ostime_t;
 
 #define SIZEOFEXPR(x) sizeof(x)
 
-#define ON_LMIC_EVENT(ev)  onEvent(ev)
-#define DECL_ON_LMIC_EVENT void onEvent(ev_t e)
+#define DECL_ON_LMIC_EVENT LMIC_DECLARE_FUNCTION_WEAK(void, onEvent, (ev_t e))
 
 extern u4_t AESAUX[];
 extern u4_t AESKEY[];
@@ -109,6 +109,7 @@ struct oslmic_radio_rssi_s {
 
 int radio_init (void);
 void radio_irq_handler (u1_t dio);
+void radio_irq_handler_v2 (u1_t dio, ostime_t tref);
 void os_init (void);
 int os_init_ex (const void *pPinMap);
 void os_runloop (void);
@@ -118,12 +119,21 @@ void radio_monitor_rssi(ostime_t n, oslmic_radio_rssi_t *pRssi);
 
 //================================================================================
 
-
-#ifndef RX_RAMPUP
-#define RX_RAMPUP  (us2osticks(2000))
+#ifndef RX_RAMPUP_DEFAULT
+//! \brief RX_RAMPUP_DEFAULT specifies the extra time we must allow to set up an RX event due
+//! to platform issues. It's specified in units of ostime_t. It must reflect
+//! platform jitter and latency, as well as the speed of the LMIC when running
+//! on this plaform. It's not used directly; clients call os_getRadioRxRampup(),
+//! which might adaptively vary this based on observed timeouts.
+#define RX_RAMPUP_DEFAULT  (us2osticks(10000))
 #endif
+
 #ifndef TX_RAMPUP
-#define TX_RAMPUP  (us2osticks(2000))
+// TX_RAMPUP specifies the extra time we must allow to set up a TX event) due
+// to platform issues. It's specified in units of ostime_t. It must reflect
+// platform jitter and latency, as well as the speed of the LMIC when running
+// on this plaform.
+#define TX_RAMPUP  (us2osticks(10000))
 #endif
 
 #ifndef OSTICKS_PER_SEC
@@ -147,7 +157,13 @@ void radio_monitor_rssi(ostime_t n, oslmic_radio_rssi_t *pRssi);
 
 
 struct osjob_t;  // fwd decl.
-typedef void (*osjobcb_t) (struct osjob_t*);
+
+//! the function type for osjob_t callbacks
+typedef void (osjobcbfn_t)(struct osjob_t*);
+
+//! the pointer-to-function for osjob_t callbacks
+typedef osjobcbfn_t *osjobcb_t;
+
 struct osjob_t {
     struct osjob_t* next;
     ostime_t deadline;
@@ -155,6 +171,11 @@ struct osjob_t {
 };
 TYPEDEF_xref2osjob_t;
 
+//! determine whether a job is timed or immediate. os_setTimedCallback()
+// must treat incoming == 0 as being 1 instead.
+static inline int os_jobIsTimed(xref2osjob_t job) {
+    return (job->deadline != 0);
+}
 
 #ifndef HAS_os_calls
 
@@ -176,6 +197,9 @@ void os_setTimedCallback (xref2osjob_t job, ostime_t time, osjobcb_t cb);
 #ifndef os_clearCallback
 void os_clearCallback (xref2osjob_t job);
 #endif
+#ifndef os_getRadioRxRampup
+ostime_t os_getRadioRxRampup (void);
+#endif
 #ifndef os_getTime
 ostime_t os_getTime (void);
 #endif
@@ -187,6 +211,10 @@ void os_radio (u1_t mode);
 #endif
 #ifndef os_getBattLevel
 u1_t os_getBattLevel (void);
+#endif
+#ifndef os_queryTimeCriticalJobs
+//! Return non-zero if any jobs are scheduled between now and now+time.
+bit_t os_queryTimeCriticalJobs(ostime_t time);
 #endif
 
 #ifndef os_rlsbf4
@@ -257,7 +285,7 @@ u2_t os_crc16 (xref2cu1_t d, uint len);
     // progmem using pgm_read_xx, or accesses memory directly when the
     // index is a constant so gcc can optimize it away;
     #define TABLE_GETTER(postfix, type, pgm_type) \
-        inline type table_get ## postfix(const type *table, size_t index) { \
+        static inline type table_get ## postfix(const type *table, size_t index) { \
             if (__builtin_constant_p(table[index])) \
                 return table[index]; \
             return pgm_read_ ## pgm_type(&table[index]); \
@@ -277,13 +305,13 @@ u2_t os_crc16 (xref2cu1_t d, uint len);
     // For AVR, store constants in PROGMEM, saving on RAM usage
     #define CONST_TABLE(type, name) const type PROGMEM RESOLVE_TABLE(name)
 #else
-    inline u1_t table_get_u1(const u1_t *table, size_t index) { return table[index]; }
-    inline s1_t table_get_s1(const s1_t *table, size_t index) { return table[index]; }
-    inline u2_t table_get_u2(const u2_t *table, size_t index) { return table[index]; }
-    inline s2_t table_get_s2(const s2_t *table, size_t index) { return table[index]; }
-    inline u4_t table_get_u4(const u4_t *table, size_t index) { return table[index]; }
-    inline s4_t table_get_s4(const s4_t *table, size_t index) { return table[index]; }
-    inline ostime_t table_get_ostime(const ostime_t *table, size_t index) { return table[index]; }
+    static inline u1_t table_get_u1(const u1_t *table, size_t index) { return table[index]; }
+    static inline s1_t table_get_s1(const s1_t *table, size_t index) { return table[index]; }
+    static inline u2_t table_get_u2(const u2_t *table, size_t index) { return table[index]; }
+    static inline s2_t table_get_s2(const s2_t *table, size_t index) { return table[index]; }
+    static inline u4_t table_get_u4(const u4_t *table, size_t index) { return table[index]; }
+    static inline s4_t table_get_s4(const s4_t *table, size_t index) { return table[index]; }
+    static inline ostime_t table_get_ostime(const ostime_t *table, size_t index) { return table[index]; }
 
     // Declare a table
     #define CONST_TABLE(type, name) const type RESOLVE_TABLE(name)
@@ -308,8 +336,18 @@ extern xref2u1_t AESaux;
 u4_t os_aes (u1_t mode, xref2u1_t buf, u2_t len);
 #endif
 
-#ifdef __cplusplus
-} // extern "C"
-#endif
+// ======================================================================
+// Simple logging support. Vanishes unless enabled.
+
+#if LMIC_ENABLE_event_logging
+extern void LMICOS_logEvent(const char *pMessage);
+extern void LMICOS_logEventUint32(const char *pMessage, uint32_t datum);
+#else // ! LMIC_ENABLE_event_logging
+# define LMICOS_logEvent(m)     do { ; } while (0)
+# define LMICOS_logEventUint32(m, d) do { ; } while (0)
+#endif // ! LMIC_ENABLE_event_logging
+
+
+LMIC_END_DECLS
 
 #endif // _oslmic_h_
