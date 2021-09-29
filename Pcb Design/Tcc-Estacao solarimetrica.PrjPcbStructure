@@ -1,1 +1,2 @@
-Record=TopLevelDocument|FileName=Schematic Diagram.SchDoc|SheetNumber=1
+Record=TopLevelDocument|FileName=Schematic Diagram for rele module.SchDoc|SheetNumber=2
+Record=NoMainPathDocument|SourceDocument=Schematic Diagram for rele module.SchDoc|FileName=Schematic Diagram with lora.SchDoc|SheetNumber=1

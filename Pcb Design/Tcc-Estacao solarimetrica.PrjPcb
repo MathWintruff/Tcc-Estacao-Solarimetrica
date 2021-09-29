@@ -58,6 +58,23 @@ GenerateClassCluster=0
 DocumentUniqueId=
 
 [Document2]
+DocumentPath=Libs\LoRaMESH_Radioenge.PcbLib
+AnnotationEnabled=1
+AnnotateStartValue=1
+AnnotationIndexControlEnabled=0
+AnnotateSuffix=
+AnnotateScope=All
+AnnotateOrder=-1
+DoLibraryUpdate=1
+DoDatabaseUpdate=1
+ClassGenCCAutoEnabled=1
+ClassGenCCAutoRoomEnabled=1
+ClassGenNCAutoScope=None
+DItemRevisionGUID=
+GenerateClassCluster=0
+DocumentUniqueId=SWOCVVKA
+
+[Document3]
 DocumentPath=Libs\Custom Footprint Lib.PcbLib
 AnnotationEnabled=1
 AnnotateStartValue=1
@@ -74,7 +91,7 @@ DItemRevisionGUID=
 GenerateClassCluster=0
 DocumentUniqueId=EUNHNIRR
 
-[Document3]
+[Document4]
 DocumentPath=Libs\Custom Schematic Lib.SCHLIB
 AnnotationEnabled=1
 AnnotateStartValue=1
@@ -91,8 +108,8 @@ DItemRevisionGUID=
 GenerateClassCluster=0
 DocumentUniqueId=BIHHMBZA
 
-[Document4]
-DocumentPath=Documents\Schematic Diagram.SchDoc
+[Document5]
+DocumentPath=Documents\PcbLayout with radioenge.PcbDoc
 AnnotationEnabled=1
 AnnotateStartValue=1
 AnnotationIndexControlEnabled=0
@@ -106,10 +123,10 @@ ClassGenCCAutoRoomEnabled=1
 ClassGenNCAutoScope=None
 DItemRevisionGUID=
 GenerateClassCluster=0
-DocumentUniqueId=BMSOAEKY
+DocumentUniqueId=MMEVEFAL
 
-[Document5]
-DocumentPath=Documents\Pcb Layout.PcbDoc
+[Document6]
+DocumentPath=Documents\Pcb Layout with lora.PcbDoc
 AnnotationEnabled=1
 AnnotateStartValue=1
 AnnotationIndexControlEnabled=0
@@ -124,6 +141,57 @@ ClassGenNCAutoScope=None
 DItemRevisionGUID=
 GenerateClassCluster=0
 DocumentUniqueId=SIWFHICT
+
+[Document7]
+DocumentPath=Documents\Schematic Diagram with lora.SchDoc
+AnnotationEnabled=1
+AnnotateStartValue=1
+AnnotationIndexControlEnabled=0
+AnnotateSuffix=
+AnnotateScope=All
+AnnotateOrder=0
+DoLibraryUpdate=1
+DoDatabaseUpdate=1
+ClassGenCCAutoEnabled=1
+ClassGenCCAutoRoomEnabled=1
+ClassGenNCAutoScope=None
+DItemRevisionGUID=
+GenerateClassCluster=0
+DocumentUniqueId=TSISMEFW
+
+[Document8]
+DocumentPath=Documents\Schematic Diagram for rele module.SchDoc
+AnnotationEnabled=1
+AnnotateStartValue=1
+AnnotationIndexControlEnabled=0
+AnnotateSuffix=
+AnnotateScope=All
+AnnotateOrder=1
+DoLibraryUpdate=1
+DoDatabaseUpdate=1
+ClassGenCCAutoEnabled=1
+ClassGenCCAutoRoomEnabled=1
+ClassGenNCAutoScope=None
+DItemRevisionGUID=
+GenerateClassCluster=0
+DocumentUniqueId=EBRWXQMQ
+
+[Document9]
+DocumentPath=Libs\Tcc-Estacao solarimetrica.SCHLIB
+AnnotationEnabled=1
+AnnotateStartValue=1
+AnnotationIndexControlEnabled=0
+AnnotateSuffix=
+AnnotateScope=All
+AnnotateOrder=-1
+DoLibraryUpdate=1
+DoDatabaseUpdate=1
+ClassGenCCAutoEnabled=1
+ClassGenCCAutoRoomEnabled=1
+ClassGenNCAutoScope=None
+DItemRevisionGUID=
+GenerateClassCluster=0
+DocumentUniqueId=HIIBOZVH
 
 [GeneratedDocument1]
 DocumentPath=Project Outputs for Tcc-Estacao solarimetrica\Design Rule Check - Pcb Layout.html
