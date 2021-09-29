@@ -40,17 +40,17 @@
 // first. When copying an EUI from ttnctl output, this means to reverse
 // the bytes. For TTN issued EUIs the last bytes should be 0xD5, 0xB3,
 // 0x70.
-static const u1_t PROGMEM APPEUI[8]={0x66, 0xEA, 0x03, 0xD0, 0x7E, 0xD5, 0xB3, 0x70};
+static const u1_t PROGMEM APPEUI[8]={0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 void os_getArtEui (u1_t* buf) { memcpy_P(buf, APPEUI, 8);}
 
 // This should also be in little endian format, see above.
-static const u1_t PROGMEM DEVEUI[8]={0x3F, 0x4E, 0x04, 0xD0, 0x7E, 0xD5, 0xB3, 0x70};
+static const u1_t PROGMEM DEVEUI[8]={0x2B, 0x54, 0x04, 0xD0, 0x7E, 0xD5, 0xB3, 0x70};
 void os_getDevEui (u1_t* buf) { memcpy_P(buf, DEVEUI, 8);}
 
 // This key should be in big endian format (or, since it is not really a
 // number but a block of memory, endianness does not really apply). In
 // practice, a key taken from ttnctl can be copied as-is.
-static const u1_t PROGMEM APPKEY[16] = {0xB3, 0x5C, 0x9F, 0xCA, 0x57, 0xA2, 0xA6, 0x57, 0x37, 0x34, 0x0D, 0x24, 0x78, 0x2F, 0x75, 0x33};
+static const u1_t PROGMEM APPKEY[16] = {0xEC, 0x18, 0x17, 0x8C, 0xEC, 0x45, 0xB6, 0xD3, 0x94, 0x74, 0xA6, 0xD4, 0xC1, 0xF5, 0x36, 0x47};
 void os_getDevKey (u1_t* buf) {  memcpy_P(buf, APPKEY, 16);}
 
 static uint8_t mydata[] = "Hello, world!";
@@ -190,15 +190,6 @@ void onEvent (ev_t ev) {
         */
         case EV_TXSTART:
             Serial.println(F("EV_TXSTART"));
-            break;
-        case EV_TXCANCELED:
-            Serial.println(F("EV_TXCANCELED"));
-            break;
-        case EV_RXSTART:
-            /* do not print anything -- it wrecks timing */
-            break;
-        case EV_JOIN_TXCOMPLETE:
-            Serial.println(F("EV_JOIN_TXCOMPLETE: no JoinAccept"));
             break;
 
         default:
