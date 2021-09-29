@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2014-2016 IBM Corporation.
- * Copyright (c) 2016-2017, 2019 MCCI Corporation.
+ * Copyright (c) 2016-2017 MCCI Corporation.
  * All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -68,15 +68,13 @@ static int unlinkjob (osjob_t** pnext, osjob_t* job) {
     return 0;
 }
 
-static osjob_t** getJobQueue(osjob_t* job) {
-    return os_jobIsTimed(job) ? &OS.scheduledjobs : &OS.runnablejobs;
-}
-
 // clear scheduled job
 void os_clearCallback (osjob_t* job) {
     hal_disableIRQs();
 
-    unlinkjob(getJobQueue(job), job);
+    // if it's not in the scheduled jobs, look in the runnable...
+    if (! unlinkjob(&OS.scheduledjobs, job))
+        unlinkjob(&OS.runnablejobs, job);
 
     hal_enableIRQs();
 }
@@ -85,15 +83,11 @@ void os_clearCallback (osjob_t* job) {
 void os_setCallback (osjob_t* job, osjobcb_t cb) {
     osjob_t** pnext;
     hal_disableIRQs();
-
     // remove if job was already queued
-    unlinkjob(getJobQueue(job), job);
-
-    // fill-in job. Ascending memory order is write-queue friendly
-    job->next = NULL;
-    job->deadline = 0;
+    unlinkjob(&OS.runnablejobs, job);
+    // fill-in job
     job->func = cb;
-
+    job->next = NULL;
     // add to end of run queue
     for(pnext=&OS.runnablejobs; *pnext; pnext=&((*pnext)->next));
     *pnext = job;
@@ -103,21 +97,13 @@ void os_setCallback (osjob_t* job, osjobcb_t cb) {
 // schedule timed job
 void os_setTimedCallback (osjob_t* job, ostime_t time, osjobcb_t cb) {
     osjob_t** pnext;
-
-    // special case time 0 -- it will be one tick late.
-    if (time == 0)
-        time = 1;
-
     hal_disableIRQs();
-
     // remove if job was already queued
-    unlinkjob(getJobQueue(job), job);
-
+    unlinkjob(&OS.scheduledjobs, job);
     // fill-in job
-    job->next = NULL;
     job->deadline = time;
     job->func = cb;
-
+    job->next = NULL;
     // insert into schedule
     for(pnext=&OS.scheduledjobs; *pnext; pnext=&((*pnext)->next)) {
         if((*pnext)->deadline - time > 0) { // (cmp diff, not abs!)
@@ -139,8 +125,6 @@ void os_runloop () {
 
 void os_runloop_once() {
     osjob_t* j = NULL;
-    hal_processPendingIRQs();
-
     hal_disableIRQs();
     // check for runnable jobs
     if(OS.runnablejobs) {
@@ -156,14 +140,4 @@ void os_runloop_once() {
     if(j) { // run job callback
         j->func(j);
     }
-}
-
-// return true if there are any jobs scheduled within time ticks from now.
-// return false if any jobs scheduled are at least time ticks in the future.
-bit_t os_queryTimeCriticalJobs(ostime_t time) {
-    if (OS.scheduledjobs &&
-        OS.scheduledjobs->deadline - os_getTime() < time)
-        return 1;
-    else
-        return 0;
 }

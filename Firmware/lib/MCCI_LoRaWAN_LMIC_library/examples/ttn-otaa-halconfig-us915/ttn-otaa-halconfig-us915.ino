@@ -75,12 +75,6 @@ static osjob_t sendjob;
 // cycle limitations).
 const unsigned TX_INTERVAL = 60;
 
-void printHex2(unsigned v) {
-    v &= 0xff;
-    if (v < 16)
-        Serial.print('0');
-    Serial.print(v, HEX);
-}
 
 void onEvent (ev_t ev) {
     Serial.print(os_getTime());
@@ -113,20 +107,20 @@ void onEvent (ev_t ev) {
               Serial.println(netid, DEC);
               Serial.print("devaddr: ");
               Serial.println(devaddr, HEX);
-              Serial.print("AppSKey: ");
-              for (size_t i=0; i<sizeof(artKey); ++i) {
+              Serial.print("artKey: ");
+              for (int i=0; i<sizeof(artKey); ++i) {
                 if (i != 0)
                   Serial.print("-");
-                printHex2(artKey[i]);
+                Serial.print(artKey[i], HEX);
               }
               Serial.println("");
-              Serial.print("NwkSKey: ");
-              for (size_t i=0; i<sizeof(nwkKey); ++i) {
+              Serial.print("nwkKey: ");
+              for (int i=0; i<sizeof(nwkKey); ++i) {
                       if (i != 0)
                               Serial.print("-");
-                      printHex2(nwkKey[i]);
+                      Serial.print(nwkKey[i], HEX);
               }
-              Serial.println();
+              Serial.println("");
             }
             // Disable link check validation (automatically enabled
             // during join, but because slow data rates change max TX
@@ -187,16 +181,6 @@ void onEvent (ev_t ev) {
         case EV_TXSTART:
             Serial.println(F("EV_TXSTART"));
             break;
-        case EV_TXCANCELED:
-            Serial.println(F("EV_TXCANCELED"));
-            break;
-        case EV_RXSTART:
-            /* do not print anything -- it wrecks timing */
-            break;
-        case EV_JOIN_TXCOMPLETE:
-            Serial.println(F("EV_JOIN_TXCOMPLETE: no JoinAccept"));
-            break;
-
         default:
             Serial.print(F("Unknown event: "));
             Serial.println((unsigned) ev);

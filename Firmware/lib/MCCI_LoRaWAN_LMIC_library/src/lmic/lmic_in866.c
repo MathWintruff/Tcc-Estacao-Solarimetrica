@@ -1,6 +1,6 @@
 /*
 * Copyright (c) 2014-2016 IBM Corporation.
-* Copyright (c) 2017, 2019-2021 MCCI Corporation.
+* Copyright (c) 2017 MCCI Corporation.
 * All rights reserved.
 *
 *  Redistribution and use in source and binary forms, with or without
@@ -49,36 +49,21 @@ CONST_TABLE(u1_t, _DR2RPS_CRC)[] = {
         ILLEGAL_RPS
 };
 
-bit_t
-LMICin866_validDR(dr_t dr) {
-        // use subtract here to avoid overflow
-        if (dr >= LENOF_TABLE(_DR2RPS_CRC) - 2)
-                return 0;
-        return TABLE_GET_U1(_DR2RPS_CRC, dr+1)!=ILLEGAL_RPS;
-}
-
-static CONST_TABLE(u1_t, maxFrameLens)[] = {
-        59+5, 59+5, 59+5, 123+5, 250+5, 250+5, 0, 250+5
-};
+static CONST_TABLE(u1_t, maxFrameLens)[] = { 59+5,59+5,59+5,123+5, 230+5, 230+5 };
 
 uint8_t LMICin866_maxFrameLen(uint8_t dr) {
         if (dr < LENOF_TABLE(maxFrameLens))
                 return TABLE_GET_U1(maxFrameLens, dr);
-        else
-                return 0;
+        else 
+                return 0xFF;
 }
 
 static CONST_TABLE(s1_t, TXPOWLEVELS)[] = {
-        30, 28, 26, 24, 22, 20, 18, 16, 14, 12, 10
+        20, 14, 11, 8, 5, 2, 0,0, 0,0,0,0, 0,0,0,0
 };
 
 int8_t LMICin866_pow2dBm(uint8_t mcmd_ladr_p1) {
-        uint8_t const pindex = (mcmd_ladr_p1&MCMD_LinkADRReq_POW_MASK)>>MCMD_LinkADRReq_POW_SHIFT;
-        if (pindex < LENOF_TABLE(TXPOWLEVELS)) {
-                return TABLE_GET_S1(TXPOWLEVELS, pindex);
-        } else {
-                return -128;
-        }
+        return TABLE_GET_S1(TXPOWLEVELS, (mcmd_ladr_p1&MCMD_LADR_POW_MASK)>>MCMD_LADR_POW_SHIFT);
 }
 
 // only used in this module, but used by variant macro dr2hsym().
@@ -103,8 +88,8 @@ ostime_t LMICin866_dr2hsym(uint8_t dr) {
 enum { NUM_DEFAULT_CHANNELS = 3 };
 static CONST_TABLE(u4_t, iniChannelFreq)[NUM_DEFAULT_CHANNELS] = {
         // Default operational frequencies
-        IN866_F1 | BAND_MILLI,
-        IN866_F2 | BAND_MILLI,
+        IN866_F1 | BAND_MILLI, 
+        IN866_F2 | BAND_MILLI, 
         IN866_F3 | BAND_MILLI,
 };
 
@@ -113,9 +98,6 @@ void LMICin866_initDefaultChannels(bit_t join) {
         LMIC_API_PARAMETER(join);
 
         os_clearMem(&LMIC.channelFreq, sizeof(LMIC.channelFreq));
-#if !defined(DISABLE_MCMD_DlChannelReq)
-        os_clearMem(&LMIC.channelDlFreq, sizeof(LMIC.channelDlFreq));
-#endif // !DISABLE_MCMD_DlChannelReq
         os_clearMem(&LMIC.channelDrMap, sizeof(LMIC.channelDrMap));
         os_clearMem(&LMIC.bands, sizeof(LMIC.bands));
 
@@ -142,43 +124,18 @@ bit_t LMIC_setupBand(u1_t bandidx, s1_t txpow, u2_t txcap) {
         return 1;
 }
 
-///
-/// \brief query number of default channels.
-///
-u1_t LMIC_queryNumDefaultChannels() {
-        return NUM_DEFAULT_CHANNELS;
-}
-
-///
-/// \brief LMIC_setupChannel for IN region
-///
-/// \note according to LoRaWAN 1.3 section 5.6, "the acceptable range
-///     for **ChIndex** is N to 16", where N is our \c NUM_DEFAULT_CHANNELS.
-///     This routine is used internally for MAC commands, so we enforce
-///     this for the extenal API as well.
-///
 bit_t LMIC_setupChannel(u1_t chidx, u4_t freq, u2_t drmap, s1_t band) {
-        // zero the band bits in freq, just in case.
-        freq &= ~3;
-
-        if (chidx < NUM_DEFAULT_CHANNELS) {
-                return 0;
-        }
-        bit_t fEnable = (freq != 0);
         if (chidx >= MAX_CHANNELS)
                 return 0;
         if (band == -1) {
-                freq = (freq&~3) | BAND_MILLI;
+                freq |= BAND_MILLI;
         } else {
                 if (band > BAND_MILLI) return 0;
                 freq = (freq&~3) | band;
         }
         LMIC.channelFreq[chidx] = freq;
         LMIC.channelDrMap[chidx] = drmap == 0 ? DR_RANGE_MAP(IN866_DR_SF12, IN866_DR_SF7) : drmap;
-        if (fEnable)
-                LMIC.channelMap |= 1 << chidx;  // enabled right away
-        else
-                LMIC.channelMap &= ~(1 << chidx);
+        LMIC.channelMap |= 1 << chidx;  // enabled right away
         return 1;
 }
 
@@ -191,44 +148,28 @@ u4_t LMICin866_convFreq(xref2cu1_t ptr) {
         return freq;
 }
 
-///
-/// \brief change the TX channel given the desired tx time.
-///
-/// \param [in] now is the time at which we want to transmit. In fact, it's always
-///     the current time.
-///
-/// \returns the actual time at which we can transmit. \c LMIC.txChnl is set to the
-///     selected channel.
-///
-/// \details
-///     We scan all the bands, creating a mask of all enabled channels that are
-///     feasible at the earliest possible time. We then randomly choose one from
-///     that, updating the shuffle mask.
-///
-///     Since there's no duty cycle limitation, and no dwell limitation,
-///     we just choose a channel from the shuffle and return the current time.
-///
+// return the next time, but also do channel hopping here
+// since there's no duty cycle limitation, and no dwell limitation,
+// we simply loop through the channels sequentially.
 ostime_t LMICin866_nextTx(ostime_t now) {
-        uint16_t availmask;
+        const u1_t band = BAND_MILLI;
 
-        // scan all the enabled channels and make a mask of candidates
-        availmask = 0;
-        for (u1_t chnl = 0; chnl < MAX_CHANNELS; ++chnl) {
-                // not enabled?
-                if ((LMIC.channelMap & (1 << chnl)) == 0)
-                        continue;
-                // not feasible?
-                if ((LMIC.channelDrMap[chnl] & (1 << (LMIC.datarate & 0xF))) == 0)
-                        continue;
-                availmask |= 1 << chnl;
+        for (u1_t ci = 0; ci < MAX_CHANNELS; ci++) {
+                // Find next channel in given band
+                u1_t chnl = LMIC.bands[band].lastchnl;
+                for (u1_t ci = 0; ci<MAX_CHANNELS; ci++) {
+                        if ((chnl = (chnl + 1)) >= MAX_CHANNELS)
+                                chnl -= MAX_CHANNELS;
+                        if ((LMIC.channelMap & (1 << chnl)) != 0 &&  // channel enabled
+                                (LMIC.channelDrMap[chnl] & (1 << (LMIC.datarate & 0xF))) != 0 &&
+                                band == (LMIC.channelFreq[chnl] & 0x3)) { // in selected band
+                                LMIC.txChnl = LMIC.bands[band].lastchnl = chnl;
+                                return now;
+                        }
+                }
         }
 
-        // now: calculate the mask
-        int candidateCh = LMIC_findNextChannel(&LMIC.channelShuffleMap, &availmask, 1, LMIC.txChnl == 0xFF ? -1 : LMIC.txChnl);
-        if (candidateCh >= 0) {
-                // update the channel.
-                LMIC.txChnl = candidateCh;
-        }
+        // no enabled channel found! just use the last channel. 
         return now;
 }
 
@@ -246,27 +187,12 @@ ostime_t LMICin866_nextJoinState(void) {
 }
 #endif // !DISABLE_JOIN
 
-// set the Rx1 dndr, rps.
-void LMICin866_setRx1Params(void) {
-    u1_t const txdr = LMIC.dndr;
-    s1_t drOffset;
-    s1_t candidateDr;
-
-    LMICeulike_setRx1Freq();
-
-    if ( LMIC.rx1DrOffset <= 5)
-        drOffset = (s1_t) LMIC.rx1DrOffset;
-    else
-        drOffset = 5 - (s1_t) LMIC.rx1DrOffset;
-
-    candidateDr = (s1_t) txdr - drOffset;
-    if (candidateDr < LORAWAN_DR0)
-            candidateDr = 0;
-    else if (candidateDr > LORAWAN_DR5)
-            candidateDr = LORAWAN_DR5;
-
-    LMIC.dndr = (u1_t) candidateDr;
-    LMIC.rps = dndr2rps(LMIC.dndr);
+// txDone handling for FSK.
+void
+LMICin866_txDoneFSK(ostime_t delay, osjobcb_t func) {
+        LMIC.rxtime = LMIC.txend + delay - PRERX_FSK*us2osticksRound(160);
+        LMIC.rxsyms = RXLEN_FSK;
+        os_setTimedCallback(&LMIC.osjob, LMIC.rxtime - RX_RAMPUP, func);
 }
 
 void

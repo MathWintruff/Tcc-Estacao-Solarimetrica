@@ -19,7 +19,6 @@ Author:
 # define _arduino_lmic_hal_configuration_h_
 
 #include <stdint.h>
-#include "lmic/lmic_env.h"
 
 namespace Arduino_LMIC {
 
@@ -62,7 +61,7 @@ struct HalPinmap_t {
 				//   Must include noise guardband!
 	uint32_t spi_freq;	// bytes 8..11: SPI freq in Hz.
 
-	// optional pointer to configuration object (bytes 12..15)
+	// optional pointer to configuration object (byest 12..15)
 	HalConfiguration_t *pConfig;
 	};
 
@@ -71,43 +70,17 @@ class HalConfiguration_t
 public:
 	HalConfiguration_t() {};
 
-	// these must match the constants in radio.c
-	enum class TxPowerPolicy_t : uint8_t
+	virtual ostime_t setModuleActive(bool state)
 		{
-		RFO,
-		PA_BOOST,
-		PA_BOOST_20dBm
-		};
-
-	virtual ostime_t setModuleActive(bool state) {
-		LMIC_API_PARAMETER(state);
-
 		// by default, if not overridden, do nothing
 		// and return 0 to indicate that the caller
 		// need not delay.
 		return 0;
-	}
+		};
 
-	virtual void begin(void) {}
-	virtual void end(void) {}
-	virtual bool queryUsingTcxo(void) { return false; }
-
-	// compute desired transmit power policy.  HopeRF needs
-	// (and previous versions of this library always chose)
-	// PA_BOOST mode. So that's our default. Override this
-	// for the Murata module.
-	virtual TxPowerPolicy_t getTxPowerPolicy(
-		TxPowerPolicy_t policy,
-		int8_t requestedPower,
-		uint32_t frequency
-		)
-		{
-		LMIC_API_PARAMETER(policy);
-		LMIC_API_PARAMETER(requestedPower);
-		LMIC_API_PARAMETER(frequency);
-		// default: use PA_BOOST exclusively
-		return TxPowerPolicy_t::PA_BOOST;
-		}
+	virtual void begin(void) {};
+	virtual void end(void) {};
+	virtual bool queryUsingTcxo(void) { return false; };
 	};
 
 bool hal_init_with_pinmap(const HalPinmap_t *pPinmap);

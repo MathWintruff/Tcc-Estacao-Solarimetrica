@@ -1,6 +1,6 @@
 /*
 * Copyright (c) 2014-2016 IBM Corporation.
-* Copyright (c) 2017, 2019 MCCI Corporation.
+* Copyright (c) 2017 MCCI Corporation.
 * All rights reserved.
 *
 *  Redistribution and use in source and binary forms, with or without
@@ -56,8 +56,7 @@ LMICeulike_isValidBeacon1(const uint8_t *d) {
 #define LMICbandplan_isFSK()    (0)
 
 // provide a default LMICbandplan_txDoneDoFSK()
-void LMICeulike_txDoneFSK(ostime_t delay, osjobcb_t func);
-#define LMICbandplan_txDoneFSK(delay, func)     LMICeulike_txDoneFSK(delay, func)
+#define LMICbandplan_txDoneFSK(delay, func)      do { } while (0)
 
 #define LMICbandplan_joinAcceptChannelClear()   LMICbandplan_initDefaultChannels(/* normal, not join */ 0)
 
@@ -65,11 +64,6 @@ enum { BAND_MILLI = 0, BAND_CENTI = 1, BAND_DECI = 2, BAND_AUX = 3 };
 
 // there's a CFList on joins for EU-like plans
 #define LMICbandplan_hasJoinCFlist()    (1)
-
-/// \brief process CFLists from JoinAccept for EU-like regions
-void LMICeulike_processJoinAcceptCFList(void);
-/// \brief by default, EU-like plans use LMICeulike_processJoinAcceptCFList
-#define LMICbandplan_processJoinAcceptCFList    LMICeulike_processJoinAcceptCFList
 
 #define LMICbandplan_advanceBeaconChannel()     \
         do { /* nothing */ } while (0)
@@ -80,13 +74,13 @@ void LMICeulike_processJoinAcceptCFList(void);
 #define LMICbandplan_setSessionInitDefaultChannels()    \
         do { LMICbandplan_initDefaultChannels(/* normal, not join */ 0); } while (0)
 
-bit_t LMICeulike_canMapChannels(u1_t chpage, u2_t chmap);
-#define LMICbandplan_canMapChannels(c, m)  LMICeulike_canMapChannels(c, m)
-
-bit_t LMICeulike_mapChannels(u1_t chpage, u2_t chmap);
+u1_t LMICeulike_mapChannels(u1_t chpage, u2_t chmap);
 #define LMICbandplan_mapChannels(c, m)  LMICeulike_mapChannels(c, m)
 
 void LMICeulike_initJoinLoop(u1_t nDefaultChannels, s1_t adrTxPow);
+
+#define LMICbandplan_setRx1Params() \
+        do { /*LMIC.freq/rps remain unchanged*/ } while (0)
 
 void LMICeulike_updateTx(ostime_t txbeg);
 #define LMICbandplan_updateTx(t)        LMICeulike_updateTx(t)
@@ -100,21 +94,5 @@ static inline ostime_t LMICeulike_nextJoinTime(ostime_t now) {
 
 #define LMICbandplan_init()     \
         do { /* nothing */ } while (0)
-
-void LMICeulike_saveAdrState(lmic_saved_adr_state_t *pStateBuffer);
-#define LMICbandplan_saveAdrState(pState) LMICeulike_saveAdrState(pState)
-
-bit_t LMICeulike_compareAdrState(const lmic_saved_adr_state_t *pStateBuffer);
-#define LMICbandplan_compareAdrState(pState) LMICeulike_compareAdrState(pState)
-
-void LMICeulike_restoreAdrState(const lmic_saved_adr_state_t *pStateBuffer);
-#define LMICbandplan_restoreAdrState(pState) LMICeulike_restoreAdrState(pState)
-
-// set Rx1 frequency (might be different than uplink).
-void LMICeulike_setRx1Freq(void);
-
-bit_t LMICeulike_isDataRateFeasible(dr_t dr);
-#define LMICbandplan_isDataRateFeasible(dr) LMICeulike_isDataRateFeasible(dr)
-
 
 #endif // _lmic_eu_like_h_
