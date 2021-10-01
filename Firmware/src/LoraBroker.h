@@ -25,6 +25,27 @@ void LoraSendAndWaitResponse(String command){
     LoraRead();
 }
 
+void VerifyLoraCommand(){
+    if(Serial.available()>0){
+        delay(200);
+        String SerialMessage = "";
+        while (Serial.available()>0)
+        {
+            char reading = Serial.read();
+            SerialMessage.concat(reading);
+        }
+        if(SerialMessage.substring(0,2) == "AT"){
+            LoraSendAndWaitResponse(SerialMessage);
+        }
+    }
+}
+
+void LoraSendMessage(String message){
+    String command = "AT+SEND=5:";
+    command.concat(message);
+    LoraSendAndWaitResponse(command);
+}
+
 void GetLoraInfo(){
     LoraRead();
     Serial.print("Dev EUI: ");

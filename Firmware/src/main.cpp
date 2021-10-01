@@ -23,10 +23,13 @@ void setup() {
 }
 
 void loop() {
+  VerifyLoraCommand();
+  LoraRead();
     if(digitalRead(btn) == 0){
     Serial.println(BatteryPhrase(batVoltageSensor));
     Serial.println(PanelPhrase(panelVoltageSensor));
     Serial.println(GetTemperature(thermistorSensor));
+    LoraSendMessage("95|13.2|32.5|45|200");
     static bool side = 0;
     side = !side;
     if (side){
