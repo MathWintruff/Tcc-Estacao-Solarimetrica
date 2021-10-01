@@ -160,23 +160,6 @@ GenerateClassCluster=0
 DocumentUniqueId=TSISMEFW
 
 [Document8]
-DocumentPath=Documents\Schematic Diagram for rele module.SchDoc
-AnnotationEnabled=1
-AnnotateStartValue=1
-AnnotationIndexControlEnabled=0
-AnnotateSuffix=
-AnnotateScope=All
-AnnotateOrder=1
-DoLibraryUpdate=1
-DoDatabaseUpdate=1
-ClassGenCCAutoEnabled=1
-ClassGenCCAutoRoomEnabled=1
-ClassGenNCAutoScope=None
-DItemRevisionGUID=
-GenerateClassCluster=0
-DocumentUniqueId=EBRWXQMQ
-
-[Document9]
 DocumentPath=Libs\Tcc-Estacao solarimetrica.SCHLIB
 AnnotationEnabled=1
 AnnotateStartValue=1

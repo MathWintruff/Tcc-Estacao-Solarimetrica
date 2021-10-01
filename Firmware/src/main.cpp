@@ -1,31 +1,39 @@
+/*******************************************************************************
+ * BSD 3-Clause License
+ * 
+ * Copyright (c) 2021, Otoma Systems
+ * All rights reserved.
+ *******************************************************************************/
+
 #include <Arduino.h>
 #include <ESP32Servo.h>
 #include <Declarations.h>
 #include <CustomFunctions.h>
-#include <SPI.h>
-#include <LoRa.h>
-#include <LoraTest.h>
+#include <LoraBroker.h>
 
 int pos = 0;
 
 void setup() {
   Serial.begin(115200);
+  LoraStart();
   delay(1000);
 
-  //LoraDump();
-
   InitializeComponents();
-  SetupLoraLib();
+  GetLoraInfo();
 }
 
 void loop() {
-  if(digitalRead(btn[0]) == 0){
-    Serial.println(BatVoltagePhrase(batVoltageSensor));
+    if(digitalRead(btn) == 0){
+    Serial.println(BatteryPhrase(batVoltageSensor));
+    Serial.println(PanelPhrase(panelVoltageSensor));
+    Serial.println(GetTemperature(thermistorSensor));
+    static bool side = 0;
+    side = !side;
+    if (side){
+      myservo.write(0);
+    }else{
+      myservo.write(180);
+    }
     delay(200);
   }
-  if(digitalRead(btn[1]) == 0){
-    //myservo.write(0);
-    delay(200);
-  }
-  os_runloop_once();
 }
