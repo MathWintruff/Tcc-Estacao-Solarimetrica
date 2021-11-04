@@ -6,6 +6,7 @@
  *******************************************************************************/
 
 #include <Arduino.h>
+#include <ConnectionSetup.h>
 #include <ESP32Servo.h>
 #include <Declarations.h>
 #include <CustomFunctions.h>
@@ -19,12 +20,18 @@ void setup() {
   delay(1000);
 
   InitializeComponents();
+  WifiSetup();
+  OtaSetup();
   //GetLoraInfo();
 }
 
 void loop() {
   VerifyLoraCommand();
   LoraRead();
+  WebControler();
+  delay(1);
+
+  
     if(digitalRead(btn) == 0){
     Serial.println(BatteryPhrase(batVoltageSensor));
     Serial.println(PanelPhrase(panelVoltageSensor));
