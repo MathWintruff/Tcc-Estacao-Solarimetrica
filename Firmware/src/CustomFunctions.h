@@ -58,3 +58,27 @@ double GetTemperature(byte temperatureSensorPin){
   double voltage = GetAnalogVoltage(temperatureSensorPin);
   return voltage;
 }
+
+int SwipeServo(){
+  static bool side = 0;
+  static int i = 30;
+  switch (side)
+  {
+  case 0:
+    if(i<175){
+      i = i+5;
+    }else{
+      side = 1;
+    }
+    break;
+
+  case 1:
+    if(i>30){
+      i = i-5;
+    }else{
+      side = 0;
+    }
+    break;
+  }
+  return i;
+}

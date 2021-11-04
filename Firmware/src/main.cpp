@@ -19,7 +19,7 @@ void setup() {
   delay(1000);
 
   InitializeComponents();
-  GetLoraInfo();
+  //GetLoraInfo();
 }
 
 void loop() {
@@ -29,14 +29,8 @@ void loop() {
     Serial.println(BatteryPhrase(batVoltageSensor));
     Serial.println(PanelPhrase(panelVoltageSensor));
     Serial.println(GetTemperature(thermistorSensor));
-    LoraSendMessage("95|13.2|32.5|45|200");
-    static bool side = 0;
-    side = !side;
-    if (side){
-      myservo.write(0);
-    }else{
-      myservo.write(180);
-    }
-    delay(200);
+    //LoraSendMessage("95|13.2|32.5|45|200");
   }
+  myservo.write(SwipeServo());
+    delay(600);
 }
