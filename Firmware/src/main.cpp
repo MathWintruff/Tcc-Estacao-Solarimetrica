@@ -6,9 +6,9 @@
  *******************************************************************************/
 
 #include <Arduino.h>
+#include <Declarations.h>
 #include <ConnectionSetup.h>
 #include <ESP32Servo.h>
-#include <Declarations.h>
 #include <CustomFunctions.h>
 #include <LoraBroker.h>
 

@@ -1,0 +1,50 @@
+<body>
+<script src='https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js'></script>
+<form method='POST' action='#' enctype='multipart/form-data' id='upload_form'>
+<div>
+<h3>Latest Data from SunScan:</h3>
+<div>
+<label class= 'DataLabel'>Inclination: </label>
+<label id='panelInclination' class= 'DataLabel'>80 Dregress</label>
+</div><div>
+<label class= 'DataLabel'>Panel Power: </label>
+<label id='panelPower' class= 'DataLabel'>120 maH</label>
+</div></div><div>
+<h3>Live Data:</h3>
+<div>
+<label class= 'DataLabel'>Temperature: </label>
+<label id='temperature' class= 'DataLabel'>30°C</label>
+</div><div>
+<label class= 'DataLabel'>Battery Voltage: </label>
+<label id='batteryVoltage' class= 'DataLabel'>15.4 V</label>
+</div></div>
+<br>
+<div id='btrBar'>
+<label class="barLabel">Battery: </label>
+<div id='bar'></div>
+<label class="barLabel">100%</label>
+</div>
+<br>
+</form>
+</body>
+<script>
+$('#bar').css('width',80 + '%');
+</script>
+
+<style>
+.DataLabel{font-size: 26px;color: #474646;}
+.barLabel{background-color: whitesmoke;}
+H3{font-size: 30px;color: #383838;padding-top: 10px;padding-bottom: 0px;}
+#panelInclination,#panelPower,#temperature,#batteryVoltage{color:#830707}
+#btrBar {background-color: #7c7c7c;display:grid;grid-template-columns:10% 82% 8%;grid-gap:2px;color: #830707;}
+#file-input,input {width: 100%;height: 44px;border-radius: 4px;margin: 10px auto;font-size: 15px}
+.container {width: 10%;margin: auto;padding: 10px;background-color: whitesmoke;border-radius: 10px;padding: 25px 0 35px 0;}
+input {background: #f1f1f1;border: 0;padding: 5px}
+body {background: #687486;font-family: sans-serif;font-size: 14px;color: #777}
+#psw {font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;font-size: normal;font-weight: normal;width: auto;margin: none;border: none;outline: none;border-radius: 4px;background-color: white;padding-left: 1%;height: 30px;width: 48%;border: 1px solid dodgerblue;}
+#file-input {padding: 0;text-align: center;display: block;cursor: pointer}
+#prgbar {background-color: #f1f1f1;border-radius: 10px;}
+#bar {background-color: #8f0588;width: 0%;height: 20px;text-align: center;font-size: 16px; color: rgb(240, 255, 241);}
+form {background: rgb(235, 232, 232);max-width: 600px;margin: 35px auto;padding: 22px;border-radius: 6px;text-align: center}
+.btn {color: #333;font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;font-size: normal;font-weight: normal;width: auto;margin: none;border: none;outline: none;border-radius: 4px;background-color: white;height: 30px;width: 25%;border: 1px solid dodgerblue;}
+.btn:hover {color: white;width: 50%;transition: all .2s ease-in-out;transform: scale(1);background: dodgerblue;}
