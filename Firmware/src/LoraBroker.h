@@ -6,23 +6,29 @@ void LoraStart(){
     LoraSerial.begin(115200, SERIAL_8N1, 16, 17);
 }
 
-void LoraRead(){
+String LoraRead(boolean print){
+    String SerialMessage = "";
     if(LoraSerial.available()>0){
         delay(100);
         while (LoraSerial.available()>0)
         {
             char reading = LoraSerial.read();
-            Serial.print(reading);
+            SerialMessage.concat(reading);
         }
+        if(print == true){
+            Serial.print(SerialMessage);
+        } 
+        
     }
-    
+    return SerialMessage;
 }
 
-void LoraSendAndWaitResponse(String command){
-    LoraRead();
+String LoraSendAndWaitResponse(String command){
+    LoraRead(false);
     LoraSerial.println(command);
     while (LoraSerial.available() <= 0){};
-    LoraRead();
+    String response = LoraRead(true);
+    return response;
 }
 
 void VerifyLoraCommand(){
@@ -46,8 +52,8 @@ void LoraSendMessage(String message){
     LoraSendAndWaitResponse(command);
 }
 
-void GetLoraInfo(){
-    LoraRead();
+void GetLoraInfoOnSerial(){
+    LoraRead(false);
     Serial.print("Dev EUI: ");
     LoraSendAndWaitResponse("AT+DEUI=?");
     Serial.print("Dev Addr: ");
@@ -75,4 +81,39 @@ void GetLoraInfo(){
     Serial.print("Join Status: ");
     LoraSendAndWaitResponse("AT+NJS=?");
     
+}
+
+struct LoraInfo{
+    String DEUI = "N/A";
+    String DADDR = "N/A";
+    String APPKEY = "N/A";
+    String APPSKEY = "N/A";
+    String NWKSKEY = "N/A";
+    String APPEUI = "N/A";
+    String ADR = "N/A";
+    String DR = "N/A";
+    String CFM = "N/A";
+    String NBTRIALS = "N/A";
+    String NJM = "N/A";
+    String CLASS = "N/A";
+    String NJS = "N/A";
+};
+
+LoraInfo GetLoraInfoForPage(){
+    LoraInfo info;
+    info.DEUI = LoraSendAndWaitResponse("AT+DEUI=?");
+    info.DADDR = LoraSendAndWaitResponse("AT+DADDR=?");
+    info.APPKEY = LoraSendAndWaitResponse("AT+APPKEY=?");
+    info.APPSKEY = LoraSendAndWaitResponse("AT+APPSKEY=?");
+    info.NWKSKEY = LoraSendAndWaitResponse("AT+NWKSKEY=?");
+    info.APPEUI = LoraSendAndWaitResponse("AT+APPEUI=?");
+    info.ADR = LoraSendAndWaitResponse("AT+ADR=?");
+    info.DR = LoraSendAndWaitResponse("AT+DR=?");
+    info.CFM = LoraSendAndWaitResponse("AT+CFM=?");
+    info.NBTRIALS = LoraSendAndWaitResponse("AT+NBTRIALS=?");
+    info.NJM = LoraSendAndWaitResponse("AT+NJM=?");
+    info.CLASS = LoraSendAndWaitResponse("AT+CLASS=?");
+    info.NJS = LoraSendAndWaitResponse("AT+NJS=?");
+
+    return info;
 }

@@ -60,25 +60,25 @@ double GetTemperature(byte temperatureSensorPin){
 }
 
 int SwipeServo(){
-  static bool side = 0;
-  static int i = 30;
+  static boolean side = false;
+  static int angle = 30;
   switch (side)
   {
-  case 0:
-    if(i<175){
-      i = i+5;
+  case false:
+    if(angle<175){
+      angle = angle+5;
     }else{
-      side = 1;
+      side = true;
     }
     break;
 
-  case 1:
-    if(i>30){
-      i = i-5;
+  case true:
+    if(angle>30){
+      angle = angle-5;
     }else{
-      side = 0;
+      side = false;
     }
     break;
   }
-  return i;
+  return angle;
 }

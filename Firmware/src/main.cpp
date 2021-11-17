@@ -7,13 +7,11 @@
 
 #include <Arduino.h>
 #include <Declarations.h>
-#include <ConnectionSetup.h>
-#include <ESP32Servo.h>
-#include <CustomFunctions.h>
 #include <LoraBroker.h>
-
+#include <CustomFunctions.h>
+#include <ConnectionSetup.h>
+String teste;
 int pos = 0;
-
 void setup() {
   Serial.begin(115200);
   LoraStart();
@@ -22,12 +20,12 @@ void setup() {
   InitializeComponents();
   WifiSetup();
   OtaSetup();
-  //GetLoraInfo();
+  //GetLoraInfoOnSerial();
 }
 
 void loop() {
   VerifyLoraCommand();
-  LoraRead();
+  LoraRead(false);
   WebControler();
   delay(1);
 
