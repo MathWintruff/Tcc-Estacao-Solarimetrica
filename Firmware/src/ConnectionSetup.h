@@ -1,5 +1,7 @@
 #include <Arduino.h>
 
+String relogio_ntp(int retorno);
+
 #pragma region Pages
 /* Style */
 String style =
@@ -83,12 +85,14 @@ LoraInfo loraInfo;
 String getDataPage(){
   BatteryData bat = GetBatteryData(batVoltageSensor);
   PanelData panel = GetPanelData(panelVoltageSensor);
-  double temperature = GetTemperature(thermistorSensor);
+  double temperature = GetTemperatureByVoltage(thermistorSensor);
+  String time = relogio_ntp(1);
 
 String dataPage =
 "<body>"
 "<script src='https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js'></script>"
 "<form method='POST' action='#' enctype='multipart/form-data' id='upload_form'>"
+"<label class= 'DataLabel'>" + time + "</label>"
 "<div>"
 "<h3>Latest Data from SunScan:</h3>"
 "<div>"
@@ -174,6 +178,7 @@ return dataPage;
 #include <Update.h>
 WebServer server(80);
 WiFiServer Wserver(80);
+WiFiUDP udp;
 IPAddress staticIP(192, 168, 0, 20);
 IPAddress gateway(192, 168, 0, 2);
 IPAddress subnet(255, 255, 255, 0);
@@ -198,6 +203,15 @@ void OtaSetup(){
     server.sendHeader("Connection", "close");
     server.send(200, "text/html", "Getting Data");
     loraInfo  = GetLoraInfoForPage();
+  });
+  server.on("/Join", HTTP_GET, []() {
+    server.sendHeader("Connection", "close");
+    server.send(200, "text/html", "Joining");
+    loraInfo.NJS = JoinNetwork();
+  });
+  server.on("/SetTime", HTTP_GET, []() {
+    server.sendHeader("Connection", "close");
+    server.send(200, "text/html", "Time Seted");
   });
   server.on("/Data", HTTP_GET, []() {
     server.sendHeader("Connection", "close");

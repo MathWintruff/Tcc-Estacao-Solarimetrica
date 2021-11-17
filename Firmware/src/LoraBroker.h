@@ -7,8 +7,9 @@ void LoraStart(){
 }
 
 String LoraRead(boolean print){
-    String SerialMessage = "";
+    String SerialMessage = "N/A";
     if(LoraSerial.available()>0){
+        SerialMessage = "";
         delay(100);
         while (LoraSerial.available()>0)
         {
@@ -25,8 +26,12 @@ String LoraRead(boolean print){
 
 String LoraSendAndWaitResponse(String command){
     LoraRead(false);
+    int retryCount = 0;
     LoraSerial.println(command);
-    while (LoraSerial.available() <= 0){};
+    while (LoraSerial.available() <= 0 && retryCount < 100){
+        retryCount++;
+        delay(20);
+    };
     String response = LoraRead(true);
     return response;
 }
@@ -116,4 +121,14 @@ LoraInfo GetLoraInfoForPage(){
     info.NJS = LoraSendAndWaitResponse("AT+NJS=?");
 
     return info;
+}
+
+String JoinNetwork(){
+    int count = 0;
+    LoraSendAndWaitResponse("AT+JOIN=?");
+    while (count < 100){
+        LoraRead(false) == "N/A" ? count++ : count = 0;
+        delay(20);
+    }
+    return LoraSendAndWaitResponse("AT+NJS=?");
 }

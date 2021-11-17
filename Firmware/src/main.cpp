@@ -9,9 +9,12 @@
 #include <Declarations.h>
 #include <LoraBroker.h>
 #include <CustomFunctions.h>
+#include <ThermistorBroker.h>
 #include <ConnectionSetup.h>
-String teste;
+#include <RtcBroker.h>
+
 int pos = 0;
+
 void setup() {
   Serial.begin(115200);
   LoraStart();
@@ -20,6 +23,7 @@ void setup() {
   InitializeComponents();
   WifiSetup();
   OtaSetup();
+  NtpStart();
   //GetLoraInfoOnSerial();
 }
 
@@ -33,7 +37,7 @@ void loop() {
     if(digitalRead(btn) == 0){
     Serial.println(BatteryPhrase(batVoltageSensor));
     Serial.println(PanelPhrase(panelVoltageSensor));
-    Serial.println(GetTemperature(thermistorSensor));
+    Serial.println(GetTemperatureByVoltage(thermistorSensor));
     //LoraSendMessage("95|13.2|32.5|45|200");
   }
   myservo.write(SwipeServo());

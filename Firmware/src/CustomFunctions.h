@@ -54,11 +54,6 @@ String PanelPhrase(byte panelSensePin){
   return finalPhrase;
 }
 
-double GetTemperature(byte temperatureSensorPin){
-  double voltage = GetAnalogVoltage(temperatureSensorPin);
-  return voltage;
-}
-
 int SwipeServo(){
   static boolean side = false;
   static int angle = 30;
