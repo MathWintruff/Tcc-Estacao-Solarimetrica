@@ -7,11 +7,11 @@
 
 #include <Arduino.h>
 #include <Declarations.h>
+#include <TimerBroker.h>
 #include <LoraBroker.h>
 #include <CustomFunctions.h>
 #include <ThermistorBroker.h>
 #include <ConnectionSetup.h>
-#include <RtcBroker.h>
 
 int pos = 0;
 
@@ -23,7 +23,6 @@ void setup() {
   InitializeComponents();
   WifiSetup();
   OtaSetup();
-  NtpStart();
   //GetLoraInfoOnSerial();
 }
 

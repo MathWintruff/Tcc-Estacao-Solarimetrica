@@ -9,7 +9,7 @@ String style =
 ".DataLabel{font-size: 26px;color: #474646;}"
 ".barLabel{background-color: whitesmoke;}"
 "H3{font-size: 30px;color: #383838;padding-top: 10px;padding-bottom: 0px;}"
-"#panelInclination,#panelPower,#temperature,#batteryVoltage{color:#830707}"
+"#panelInclination,#panelPower,#temperature,#batteryVoltage,#Time{color:#830707}"
 "#btrBar {background-color: #7c7c7c;display:grid;grid-template-columns:10% 82% 8%;grid-gap:2px;color: #830707;}"
 "#file-input,input {width: 100%;height: 44px;border-radius: 4px;margin: 10px auto;font-size: 15px}"
 ".container {width: 10%;margin: auto;padding: 10px;background-color: whitesmoke;border-radius: 10px;padding: 25px 0 35px 0;}"
@@ -86,14 +86,16 @@ String getDataPage(){
   BatteryData bat = GetBatteryData(batVoltageSensor);
   PanelData panel = GetPanelData(panelVoltageSensor);
   double temperature = GetTemperatureByVoltage(thermistorSensor);
-  String time = relogio_ntp(1);
+  String time = GetTimePassedFromLastAction();
 
 String dataPage =
 "<body>"
 "<script src='https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js'></script>"
 "<form method='POST' action='#' enctype='multipart/form-data' id='upload_form'>"
-"<label class= 'DataLabel'>" + time + "</label>"
 "<div>"
+"<label class= 'DataLabel'>Time passed from last scan: </label>"
+"<label id='Time' class= 'DataLabel'>" + time + "(m:s)</label>"
+"</div><div>"
 "<h3>Latest Data from SunScan:</h3>"
 "<div>"
 "<label class= 'DataLabel'>Inclination: </label>"
