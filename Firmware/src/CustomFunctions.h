@@ -1,5 +1,4 @@
 #include <Arduino.h>
-#include <AdcBroker.h>
 struct BatteryData{
     double voltage;
     double percentage;
@@ -26,54 +25,4 @@ String BatteryPhrase(byte batterySensePin){
   finalPhrase.concat(bat.voltage);
   finalPhrase.concat("v.");
   return finalPhrase;
-}
-
-struct PanelData{
-  double voltage;
-  double current;
-  double percentage;
-};
-
-PanelData GetPanelData(byte panelSensePin){
-  PanelData panel; 
-   panel.voltage = GetAnalogVoltage(panelSensePin);
-   panel.current = panel.voltage/0.015;
-   panel.percentage = 220/panel.current;
-   return panel;
-}
-
-String PanelPhrase(byte panelSensePin){
-  PanelData panel = GetPanelData(panelSensePin);
-  String finalPhrase = "The panel voltage is: ";
-  finalPhrase.concat(panel.voltage);
-  finalPhrase.concat("v, the current is: ");
-  finalPhrase.concat(panel.current);
-  finalPhrase.concat("mA and the power percentage is: ");
-  finalPhrase.concat(panel.percentage);
-  finalPhrase.concat("%.");
-  return finalPhrase;
-}
-
-int SwipeServo(){
-  static boolean side = false;
-  static int angle = 30;
-  switch (side)
-  {
-  case false:
-    if(angle<175){
-      angle = angle+5;
-    }else{
-      side = true;
-    }
-    break;
-
-  case true:
-    if(angle>30){
-      angle = angle-5;
-    }else{
-      side = false;
-    }
-    break;
-  }
-  return angle;
 }

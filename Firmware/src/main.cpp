@@ -7,13 +7,13 @@
 
 #include <Arduino.h>
 #include <Declarations.h>
-#include <TimerBroker.h>
-#include <LoraBroker.h>
+#include <AdcBroker.h>
 #include <CustomFunctions.h>
+#include <TimerBroker.h>
+#include <SunSensorBroker.h>
 #include <ThermistorBroker.h>
+#include <LoraBroker.h>
 #include <ConnectionSetup.h>
-
-int pos = 0;
 
 void setup() {
   Serial.begin(115200);
@@ -21,6 +21,7 @@ void setup() {
   delay(1000);
 
   InitializeComponents();
+  InicializeSunSensor();
   WifiSetup();
   OtaSetup();
   //GetLoraInfoOnSerial();
@@ -28,17 +29,13 @@ void setup() {
 
 void loop() {
   VerifyLoraCommand();
-  LoraRead(false);
+  LoraRead(true);
   WebControler();
+  if (CheckIfTimeHasPassed(2)) CheckIfSunIsPresentAndGetReading();
   delay(1);
 
   
     if(digitalRead(btn) == 0){
-    Serial.println(BatteryPhrase(batVoltageSensor));
-    Serial.println(PanelPhrase(panelVoltageSensor));
-    Serial.println(GetTemperatureByVoltage(thermistorSensor));
-    //LoraSendMessage("95|13.2|32.5|45|200");
+    CheckSunInclination();
   }
-  myservo.write(SwipeServo());
-    delay(600);
 }

@@ -278,10 +278,10 @@ const float ADC_LUT[4096] PROGMEM = { 0,
 
 double GetAnalogVoltage(byte IOpin){
     double meassureBuffer = 0;
-    for(int i=0; i<100; i++){
+    for(int i=0; i<200; i++){
         int reading = analogRead(IOpin);
         meassureBuffer += ADC_LUT[reading];
         delay(1);
     }
-    return ((meassureBuffer/100)*(3.3/4095));
+    return ((meassureBuffer/200)*(3.3/4095));
 }

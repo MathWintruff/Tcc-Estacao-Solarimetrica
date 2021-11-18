@@ -26,3 +26,13 @@ String GetTimePassedFromLastAction(){
     response.concat(String(seconds));
     return response;
 }
+
+String GetTimePassedFromBoot(){
+    unsigned long timePassed = millis();
+    long minutes = timePassed/60000;
+    long seconds = (timePassed % 60000) / 1000;
+    String response = String(minutes);
+    response.concat(":");
+    response.concat(String(seconds));
+    return response;
+}

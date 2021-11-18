@@ -84,9 +84,9 @@ LoraInfo loraInfo;
 
 String getDataPage(){
   BatteryData bat = GetBatteryData(batVoltageSensor);
-  PanelData panel = GetPanelData(panelVoltageSensor);
   double temperature = GetTemperatureByVoltage(thermistorSensor);
-  String time = GetTimePassedFromLastAction();
+  String timeFromLastAction = GetTimePassedFromLastAction();
+  String timeFromBoot = GetTimePassedFromBoot();
 
 String dataPage =
 "<body>"
@@ -94,15 +94,18 @@ String dataPage =
 "<form method='POST' action='#' enctype='multipart/form-data' id='upload_form'>"
 "<div>"
 "<label class= 'DataLabel'>Time passed from last scan: </label>"
-"<label id='Time' class= 'DataLabel'>" + time + "(m:s)</label>"
+"<label id='Time' class= 'DataLabel'>" + timeFromLastAction + "(m:s)</label>"
 "</div><div>"
-"<h3>Latest Data from SunScan:</h3>"
+"<label class= 'DataLabel'>Time passed from boot: </label>"
+"<label id='Time' class= 'DataLabel'>" + timeFromBoot + "(m:s)</label>"
+"</div><div>"
+"<h3>Latest Valid Data from SunScan:</h3>"
 "<div>"
 "<label class= 'DataLabel'>Inclination: </label>"
-"<label id='panelInclination' class= 'DataLabel'>80 Dregress</label>"
+"<label id='panelInclination' class= 'DataLabel'>" + String(lastSunInclinationReading.angle) + "</label>"
 "</div><div>"
 "<label class= 'DataLabel'>Panel Current: </label>"
-"<label id='panelPower' class= 'DataLabel'>" + String(panel.current) + " maH</label>"
+"<label id='panelPower' class= 'DataLabel'>" + String(lastSunInclinationReading.current) + " maH</label>"
 "</div></div><div>"
 "<h3>Live Data:</h3>"
 "<div>"
@@ -200,6 +203,11 @@ void OtaSetup(){
     server.send(200, "text/html", "EspReseted");
     //server.send(200, "text/html", resetPage);
     ResetEsp();
+  });
+  server.on("/CheckSun", HTTP_GET, []() {
+    server.sendHeader("Connection", "close");
+    server.send(200, "text/html", "Reading angle for energy efficience");
+    CheckSunInclination();
   });
   server.on("/GetLoraInfo", HTTP_GET, []() {
     server.sendHeader("Connection", "close");
