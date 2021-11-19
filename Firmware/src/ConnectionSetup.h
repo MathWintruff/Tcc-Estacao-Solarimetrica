@@ -83,8 +83,8 @@ String updatePage =
 LoraInfo loraInfo;
 
 String getDataPage(){
-  BatteryData bat = GetBatteryData(batVoltageSensor);
-  double temperature = GetTemperatureByVoltage(thermistorSensor);
+  BatteryData bat = GetBatteryData();
+  double temperature = GetTemperatureByVoltage();
   String timeFromLastAction = GetTimePassedFromLastAction();
   String timeFromBoot = GetTimePassedFromBoot();
 
@@ -207,7 +207,7 @@ void OtaSetup(){
   server.on("/CheckSun", HTTP_GET, []() {
     server.sendHeader("Connection", "close");
     server.send(200, "text/html", "Reading angle for energy efficience");
-    CheckSunInclination();
+    GetInfoAndSendWithLora();
   });
   server.on("/GetLoraInfo", HTTP_GET, []() {
     server.sendHeader("Connection", "close");

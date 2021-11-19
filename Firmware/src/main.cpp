@@ -8,7 +8,7 @@
 #include <Arduino.h>
 #include <Declarations.h>
 #include <AdcBroker.h>
-#include <CustomFunctions.h>
+#include <BatteryBroker.h>
 #include <TimerBroker.h>
 #include <SunSensorBroker.h>
 #include <ThermistorBroker.h>
@@ -18,21 +18,24 @@
 void setup() {
   Serial.begin(115200);
   LoraStart();
-  delay(1000);
+  delay(2000);
 
   InitializeComponents();
   InicializeSunSensor();
   WifiSetup();
   OtaSetup();
-  //GetLoraInfoOnSerial();
 }
 
 void loop() {
   VerifyLoraCommand();
   LoraRead(true);
   WebControler();
-  if (CheckIfTimeHasPassed(2)) CheckIfSunIsPresentAndGetReading();
-  delay(1);
+  if (CheckIfTimeHasPassed(15)) {
+    GetInfoAndSendWithLora();
+  }
+
+  delay(10);
+
 
   
     if(digitalRead(btn) == 0){

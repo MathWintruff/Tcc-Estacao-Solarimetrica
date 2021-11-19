@@ -132,3 +132,25 @@ String JoinNetwork(){
     }
     return LoraSendAndWaitResponse("AT+NJS=?");
 }
+
+void GetInfoAndSendWithLora(){
+    if(CheckIfSunIsPresentAndGetReading()){
+      String batPercentage = String(GetBatteryData().percentage);
+      String batVoltage = String(GetBatteryData().voltage);
+      String temperature = String(GetTemperatureByVoltage());
+      String angle = String(lastSunInclinationReading.angle);
+      String current = String(lastSunInclinationReading.current);
+
+      String loraDataToSend = batPercentage;
+      loraDataToSend.concat("|");
+      loraDataToSend.concat(batVoltage);
+      loraDataToSend.concat("|");
+      loraDataToSend.concat(temperature);
+      loraDataToSend.concat("|");
+      loraDataToSend.concat(angle);
+      loraDataToSend.concat("|");
+      loraDataToSend.concat(current);
+
+      LoraSendMessage(loraDataToSend);
+    }
+}

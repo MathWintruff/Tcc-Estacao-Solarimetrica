@@ -68,7 +68,7 @@ void CheckSunInclination(){
     if(sunData.current >= 1) lastSunInclinationReading = sunData;
 }
 
-void CheckIfSunIsPresentAndGetReading(){
+bool CheckIfSunIsPresentAndGetReading(){
     double readingsSum = 0;
     myservo.write(155);
     delay(500);
@@ -80,7 +80,10 @@ void CheckIfSunIsPresentAndGetReading(){
     delay(500);
     readingsSum += GetPanelCurrent();
 
-    if(readingsSum >= 10) CheckSunInclination();
+    if(readingsSum >= 10) {
+      CheckSunInclination();
+      return true;
+    }else return false;
 }
 
 

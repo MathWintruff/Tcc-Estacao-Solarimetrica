@@ -1,18 +1,19 @@
 #include <Arduino.h>
 
-double GetTemperatureByVoltage(byte thermistorPin){
-  double R1 = 10000.0;   
-  double Beta = 3950.0;  
-  double To = 298.15;  
-  double Ro = 10000.0;   
-  double Vs = 3.3;
-  double Vout, Rt = 0;
-  double T, Tc = 0;
+double GetTemperatureByVoltage(){
+  const double beta = 3600.0;
+  const double thermistorResistence = 10000.0;
+  const double temperature = 273.0 + 25.0;
+  const double rx = thermistorResistence * exp(-beta/temperature);
 
-  Vout = GetAnalogVoltage(thermistorPin);
+  // Parâmetros do circuito
+  const double vcc = 3.3;
+  const double resistor = 12000.0;
 
-  Rt = R1 * Vout / (Vs - Vout);
-  T = 1/(1/To + log(Rt/Ro)/Beta);  
-  Tc = T - 273.15;                      
-  return  Tc;
+  double v = GetAnalogVoltage(thermistorSensor);;
+  double rt = (vcc*resistor)/v - resistor;
+
+  // Calcula a temperatura
+  double t = beta / log(rt/rx);                   
+  return  (t-273.0);
 }

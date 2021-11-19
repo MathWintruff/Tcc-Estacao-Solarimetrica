@@ -4,9 +4,9 @@ struct BatteryData{
     double percentage;
 };
 
-BatteryData GetBatteryData(byte batterySensePin){
+BatteryData GetBatteryData(){
     BatteryData bat;
-    double reading = GetAnalogVoltage(batterySensePin);
+    double reading = GetAnalogVoltage(batVoltageSensor);
 
     double batVoltage = reading/0.231;
     bat.voltage = batVoltage;
@@ -18,7 +18,7 @@ BatteryData GetBatteryData(byte batterySensePin){
 }
 
 String BatteryPhrase(byte batterySensePin){
-  BatteryData bat = GetBatteryData(batterySensePin);
+  BatteryData bat = GetBatteryData();
   String finalPhrase = "The battery charge is: ";
   finalPhrase.concat(bat.percentage);
   finalPhrase.concat(" Percent, and the Voltage is: ");
