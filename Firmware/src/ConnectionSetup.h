@@ -253,13 +253,15 @@ void OtaSetup(){
 void WifiSetup(){
   WiFi.config(staticIP, gateway, subnet, dns, dns);
   WiFi.begin("DD-Wrt", "197346825");
-  while (WiFi.status() != WL_CONNECTED) {
+  int tryCount = 0;
+  while (WiFi.status() != WL_CONNECTED && tryCount <= 12){
+    tryCount++;
     delay(500);
   }
-
-  
+  if(WiFi.status() != WL_CONNECTED){
   WiFi.softAP("TccEstacaoSolarimetrica", "197346825", 5, 0, 2);
   Serial.println(WiFi.softAPIP());
+  }
 
 }
 
