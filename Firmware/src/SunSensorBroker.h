@@ -26,8 +26,8 @@ String PanelPhrase(byte panelSensePin){
 }
 
 struct SunData {
-    int angle = 0;
-    int current = 0;
+    String angle = "-75|-70|-65|-60|-55|-50|-45|-40|-35|-30|-25|-20|-15|-10|-05|00|05|10|15|20|25|30|35|40|45|50|55|60|65|70|75";
+    String current = "";
 };
 
 SunData lastSunInclinationReading;
@@ -53,55 +53,16 @@ void CheckSunInclination(){
     }
     myservo.write(100);
 
-    int bestReading = 0;
+    sunData.current = "";
 
     for(int readingCounter = 0; readingCounter <= 30; readingCounter++){
-        if(currentReadings[readingCounter] >= currentReadings[bestReading]){
-            bestReading = readingCounter;
+        if (readingCounter == 0){
+          sunData.current.concat(currentReadings[readingCounter]);
+        }else{
+          sunData.current.concat("|");
+          sunData.current.concat(currentReadings[readingCounter]);
         }
         delay(1);
     }
-
-    sunData.angle = (angleReadigns[bestReading])-100;
-    sunData.current = currentReadings[bestReading];
-
-    if(sunData.current >= 1) lastSunInclinationReading = sunData;
-}
-
-bool CheckIfSunIsPresentAndGetReading(){
-    double readingsSum = 0;
-    myservo.write(155);
-    delay(500);
-    readingsSum = GetPanelCurrent();
-    myservo.write(45);
-    delay(500);
-    readingsSum += GetPanelCurrent();
-    myservo.write(100);
-    delay(500);
-    readingsSum += GetPanelCurrent();
-
-    if(readingsSum >= 10) {
-      CheckSunInclination();
-      return true;
-    }else return false;
-}
-
-
-int SwipeServo(){
-  static boolean side = false;
-  static int angle = 30;
-  if(side){
-    if(angle>30){
-      angle = angle-5;
-    }else{
-      side = false;
-    }
-  }else{
-    if(angle<175){
-      angle = angle+5;
-    }else{
-      side = true;
-    }
-  return angle;
-  }
+    lastSunInclinationReading.current = sunData.current;
 }

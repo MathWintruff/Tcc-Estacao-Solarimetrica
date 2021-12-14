@@ -124,33 +124,37 @@ LoraInfo GetLoraInfoForPage(){
 }
 
 String JoinNetwork(){
-    int count = 0;
-    LoraSendAndWaitResponse("AT+JOIN=?");
-    while (count < 100){
-        LoraRead(false) == "N/A" ? count++ : count = 0;
-        delay(20);
+    if(LoraSendAndWaitResponse("AT+NJS=?") == "0"){
+        for(int tryCount = 0; tryCount <= 5; tryCount++){
+            int count = 0;
+            LoraSendAndWaitResponse("AT");
+            LoraSendAndWaitResponse("AT+JOIN");
+            while (count < 100){
+                LoraRead(false) == "N/A" ? count++ : count = 0;
+                delay(50);
+            }
+            if(LoraSendAndWaitResponse("AT+NJS=?") == "1"){
+                tryCount = 6;
+            }
+        }
     }
     return LoraSendAndWaitResponse("AT+NJS=?");
 }
 
 void GetInfoAndSendWithLora(){
-    if(CheckIfSunIsPresentAndGetReading()){
-      String batPercentage = String(GetBatteryData().percentage);
-      String batVoltage = String(GetBatteryData().voltage);
-      String temperature = String(GetTemperatureByVoltage());
-      String angle = String(lastSunInclinationReading.angle);
-      String current = String(lastSunInclinationReading.current);
+    CheckSunInclination();
+    String batPercentage = String(GetBatteryData().percentage);
+    String batVoltage = String(GetBatteryData().voltage);
+    String temperature = String(GetTemperatureByVoltage());
+    String current = String(lastSunInclinationReading.current);
 
-      String loraDataToSend = batPercentage;
-      loraDataToSend.concat("|");
-      loraDataToSend.concat(batVoltage);
-      loraDataToSend.concat("|");
-      loraDataToSend.concat(temperature);
-      loraDataToSend.concat("|");
-      loraDataToSend.concat(angle);
-      loraDataToSend.concat("|");
-      loraDataToSend.concat(current);
+    String loraDataToSend = batPercentage;
+    loraDataToSend.concat("|");
+    loraDataToSend.concat(batVoltage);
+    loraDataToSend.concat("|");
+    loraDataToSend.concat(temperature);
+    loraDataToSend.concat("|");
+    loraDataToSend.concat(current);
 
-      LoraSendMessage(loraDataToSend);
-    }
+    LoraSendMessage(loraDataToSend);
 }

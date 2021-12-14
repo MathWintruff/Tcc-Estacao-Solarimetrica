@@ -30,15 +30,14 @@ void loop() {
   VerifyLoraCommand();
   LoraRead(true);
   WebControler();
-  if (CheckIfTimeHasPassed(15)) {
+  if (CheckIfTimeHasPassed(1)) {
     GetInfoAndSendWithLora();
   }
 
   delay(10);
-
-
   
     if(digitalRead(btn) == 0){
-    CheckSunInclination();
+      JoinNetwork();
+      GetInfoAndSendWithLora();
   }
 }
