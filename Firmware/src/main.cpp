@@ -30,7 +30,7 @@ void loop() {
   VerifyLoraCommand();
   LoraRead(true);
   WebControler();
-  if (CheckIfTimeHasPassed(1)) {
+  if (CheckIfTimeHasPassed(2)) {
     GetInfoAndSendWithLora();
   }
 

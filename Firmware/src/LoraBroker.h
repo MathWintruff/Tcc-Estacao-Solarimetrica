@@ -143,10 +143,10 @@ String JoinNetwork(){
 
 void GetInfoAndSendWithLora(){
     CheckSunInclination();
-    String batPercentage = String(GetBatteryData().percentage);
+    String current = String(lastSunInclinationReading.current);
+    /*String batPercentage = String(GetBatteryData().percentage);
     String batVoltage = String(GetBatteryData().voltage);
     String temperature = String(GetTemperatureByVoltage());
-    String current = String(lastSunInclinationReading.current);
 
     String loraDataToSend = batPercentage;
     loraDataToSend.concat("|");
@@ -155,6 +155,7 @@ void GetInfoAndSendWithLora(){
     loraDataToSend.concat(temperature);
     loraDataToSend.concat("|");
     loraDataToSend.concat(current);
+    */
 
-    LoraSendMessage(loraDataToSend);
+    LoraSendMessage(current);
 }
