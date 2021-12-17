@@ -219,10 +219,6 @@ void OtaSetup(){
     server.send(200, "text/html", "Joining");
     loraInfo.NJS = JoinNetwork();
   });
-  server.on("/SetTime", HTTP_GET, []() {
-    server.sendHeader("Connection", "close");
-    server.send(200, "text/html", "Time Seted");
-  });
   server.on("/Data", HTTP_GET, []() {
     server.sendHeader("Connection", "close");
     server.send(200, "text/html", getDataPage());
